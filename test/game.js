@@ -457,8 +457,8 @@ function stick(){
 	}
 	game.activeItem = this;
 	this.active = true;
-	game.h.x = game.activeItem.x;
-	game.h.y = game.activeItem.y-100;
+	game.h.x = game.activeItem.x-100;
+	game.h.y = game.activeItem.y;
 	
 }
 
