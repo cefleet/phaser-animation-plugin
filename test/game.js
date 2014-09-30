@@ -116,6 +116,8 @@ function create(){
 				x : 0.9,
 				y : 0.5
 			},
+			maxRot : 170,
+			minRot : -170,
 			parent : {
 				object : 'upperbody',
 				attachPoint : {
@@ -130,6 +132,8 @@ function create(){
 				x : 0.9,
 				y : 0.5
 			},
+			maxRot : 30,
+			minRot : -30,
 			parent : {
 				object : 'lshoulder',
 				attachPoint : {
@@ -144,6 +148,8 @@ function create(){
 				x : 0.9,
 				y : 0.5
 			},
+			maxRot : 30,
+			minRot : -30,
 			parent : {
 				object : 'larm1',
 				attachPoint : {
@@ -158,6 +164,9 @@ function create(){
 				x : 0.9,
 				y : 0.5
 			},
+			maxRot : 30,
+			minRot : -30,
+			lastImpact : 'lshoulder',
 			parent : {
 				object : 'larm2',
 				attachPoint : {
@@ -411,7 +420,7 @@ function create(){
 		sGroup[o].events.onInputUp.add(stick, sGroup[o]);
 		
 		sGroup[o].scale.setTo(3,3);
-		sGroup[o].events.onDragStart.add(startDrag, this);
+		//sGroup[o].events.onDragStart.add(startDrag, this);
 		//sGroup[o].events.onDrag.add(dragging, this);
 	//sprite.events.onDragStop.add(stopDrag, this);
 	//	this.aGroup.add(sGroup[0]);
@@ -419,11 +428,25 @@ function create(){
 	}
 	game.bodyItems = sGroup;
 	setBones();
+	
+	game.h = game.add.sprite(200,400, 'facbook');
+	game.h.inputEnabled = true;
+	game.h.input.enableDrag();
+
 }
 
-function startDrag(sprite,pointer){
-	if(pointer.y > sprite.y){
-		sprite.skelObj.rotation += Phaser.Math.degToRad(5);
+function checkConstraint(h,sprite){
+
+  var ang = Phaser.Math.angleBetweenPoints(sprite,h);
+
+  h.skelObj.rotation = ang;  
+  if(Phaser.Math.distance(h.x,h.y,sprite.x,sprite.y) > 100){
+
+		var angle = Phaser.Math.angleBetween(h.x,h.y,sprite.x,sprite.y)
+		var y = h.y+100*Math.sin(angle);
+		var x = h.x+100*Math.cos(angle);
+		sprite.x = x;
+		sprite.y = y;
 	}
 }
 
@@ -434,6 +457,9 @@ function stick(){
 	}
 	game.activeItem = this;
 	this.active = true;
+	game.h.x = game.activeItem.x;
+	game.h.y = game.activeItem.y-100;
+	
 }
 
 function highlight(){
@@ -446,7 +472,12 @@ function shade(){
 }
 
 function update(){
+
+  if(game.activeItem){
+	  checkConstraint(game.activeItem,game.h);
+	}
 	setBones();
+		
 }
 
 var setBones = function(){
@@ -462,14 +493,14 @@ var setBones = function(){
 				
 		if(item.skelObj.rotation > Phaser.Math.degToRad(item.skelObj.maxRot)){
 			item.skelObj.rotation = Phaser.Math.degToRad(item.skelObj.maxRot);
-			console.log('Bigger');
+
 			if(item.skelObj.parent){
 				item.skelObj.parent.skelObj.rotation += Phaser.Math.degToRad(5);
 			}
 		}
 		if(item.skelObj.rotation < Phaser.Math.degToRad(item.skelObj.minRot)){
 			item.skelObj.rotation = Phaser.Math.degToRad(item.skelObj.minRot);
-			console.log('smaller');
+
 			if(item.skelObj.parent){
 				item.skelObj.parent.skelObj.rotation -= Phaser.Math.degToRad(5);
 			}
